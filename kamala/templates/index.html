@@ -2,15 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Flask-Dropzone Demo: Basic</title>
+  <title>КАМАЛА: Услуги оказанные специалистом</title>
   {{ dropzone.load_css() }}
   {{ dropzone.style('border: 2px dashed #0087F7; margin: 10%; min-height: 400px;') }}
 </head>
 <body>
-<a href="/kamala-services-per-day-file"><button>Download</button></a>
-  {{ dropzone.create(action='upload') }}
-  {{ dropzone.load_js() }}
-  {{ dropzone.config() }}
-
+<p>&nbsp;</p>
+<p>{{ dropzone.load_css() }} {{ dropzone.style('border: 2px dashed #0087F7; margin: 10%; min-height: 400px;') }}</p>
+<p>Hi! :)</p>
+<p>&nbsp;</p>
+<p>Отчёт из Клиентикс перетащить на область выделенную пунктиром (или кликнуть по ней и выбрать файл).</p>
+<p>После загрузки файла на сервер нажать кнопку <em>Download</em>.</p>
+<p>&nbsp;</p>
+<p><a href="/kamala-services-per-day-file"><button>Download</button></a> {{ dropzone.create(action='upload') }} {{ dropzone.load_js() }} {{ dropzone.config() }}</p>
 </body>
 </html>

@@ -44,7 +44,7 @@ def fix_the_shit(file):
             target.append([date, t1, t2])
 
     full_path = os.path.join(app.config['UPLOADED_PATH'], 'result.csv')
-    with open(full_path, "w+", newline="") as f:
+    with open(full_path, "w+", newline="", encoding='cp1251') as f:
         writer = csv.writer(f)
         writer.writerows(target)
 

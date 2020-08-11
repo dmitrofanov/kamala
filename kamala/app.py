@@ -43,7 +43,7 @@ def fix_the_shit(file):
             t2 = x[-i:].strip()
             target.append([date, t1, t2])
 
-    full_path = os.path.join(app.config['UPLOADED_PATH'], file.filename)
+    full_path = os.path.join(app.config['UPLOADED_PATH'], 'result.csv')
     with open(full_path, "w+", newline="") as f:
         writer = csv.writer(f)
         writer.writerows(target)

@@ -44,24 +44,17 @@ def fix_the_shit(file):
             target.append([date, t1, t2])
 
     #full_path = os.path.join(app.config['UPLOADED_PATH'], file.filename)
-    with open('result.csv', "w", newline="") as f:
+    with open('result.csv', "w+", newline="") as f:
         writer = csv.writer(f)
         writer.writerows(target)
 
-basedir = os.path.abspath(os.path.dirname(__file__))
-
 app = Flask(__name__)
-
-app.config.update(
-    UPLOADED_PATH=os.path.join(basedir, 'uploads'),
-    # Flask-Dropzone config:
-    #DROPZONE_ALLOWED_FILE_TYPE='csv',
-    #DROPZONE_MAX_FILE_SIZE=3,
-    #DROPZONE_MAX_FILES=1,
-)
 
 dropzone = Dropzone(app)
 
+@app.route('/kamala-first-seen-clients')
+def render_response():
+    return render_template('kamala-first-seen-clients.html')
 
 @app.route('/kamala-services-per-day', methods=['POST', 'GET'])
 def upload():

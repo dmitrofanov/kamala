@@ -43,12 +43,21 @@ def fix_the_shit(file):
             t2 = x[-i:].strip()
             target.append([date, t1, t2])
 
-    #full_path = os.path.join(app.config['UPLOADED_PATH'], file.filename)
-    with open('result.csv', "w+", newline="") as f:
+    full_path = os.path.join(app.config['UPLOADED_PATH'], file.filename)
+    with open(full_path, "w+", newline="") as f:
         writer = csv.writer(f)
         writer.writerows(target)
 
+
+
 app = Flask(__name__)
+
+basedir = os.path.abspath(os.path.dirname(__file__))
+app.config.update(
+    UPLOADED_PATH=os.path.join(basedir, 'uploads'),
+)
+
+
 
 dropzone = Dropzone(app)
 
@@ -69,7 +78,7 @@ def upload():
 @app.route('/kamala-services-per-day-file')
 def return_files():
     return send_file(
-        'result.csv',
+        os.path.join(app.config['UPLOADED_PATH'], 'result.csv'),
         mimetype='text/csv',
         attachment_filename='result'+datetime.datetime.now().strftime("%Y%m%d%H%M%S")+'.csv',
         as_attachment=True,

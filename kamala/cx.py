@@ -1,11 +1,11 @@
 import requests
 import json
 import math
-import logging as l
+import logging
 
 
-# KX - KlientiX
-KX_ENDPOINT = "https://klientiks.ru/clientix/Restapi/"
+# CX - ClientiX
+CX_ENDPOINT = "https://klientiks.ru/clientix/Restapi/"
 
 API_ACCOUNT = '390b96e2763e'
 API_USER = 'd969c9cde78c'
@@ -13,19 +13,19 @@ API_TOKEN = '073de5009f21b34afa022cfa7ca2c124'
 
 # ACL - Appointment Client Links
 API_ACL_NAME = 'ACL'
-API_ACL_LINK = KX_ENDPOINT + "list/a/{}/u/{}/t/{}/m/AppointmentClientLinks/ik/orders/rvwk/status,statuses/?date=10&offset="
+API_ACL_LINK = CX_ENDPOINT + "list/a/{}/u/{}/t/{}/m/AppointmentClientLinks/ik/orders/rvwk/status,statuses/?date=10&offset="
 
 # REACL = RoistatExportACL
 API_REACL_NAME = 'REACL'
-API_REACL_LINK = KX_ENDPOINT + "roistatExportAcl/a/{}/u/{}/t/{}/ik/orders/rvwk/status,statuses/?date=1521871200&offset="
+API_REACL_LINK = CX_ENDPOINT + "roistatExportAcl/a/{}/u/{}/t/{}/ik/orders/rvwk/status,statuses/?date=1521871200&offset="
 
 # CLDT - CLient by DaTe
 API_CLDT_NAME = 'CLDT'
-API_CLDT_LINK = KX_ENDPOINT + "list/a/{}/u/{}/t/{}/m/clients/date/"
+API_CLDT_LINK = CX_ENDPOINT + "list/a/{}/u/{}/t/{}/m/clients/date/"
 
 # GA - Get Appointment
 API_GA_NAME = 'GA'
-API_GA_LINK = KX_ENDPOINT + "getAppointment/a/{}/u/{}/t/{}/id/"
+API_GA_LINK = CX_ENDPOINT + "getAppointment/a/{}/u/{}/t/{}/id/"
 
 API = {API_ACL_NAME: API_ACL_LINK,
        API_REACL_NAME: API_REACL_LINK,
@@ -40,25 +40,26 @@ def get_api_link(api_name, page):
 
 def get_data_chunk(api_name, offset=""):
     api_link = get_api_link(api_name, str(offset))
-    l.debug(f'Requesting data chunk {api_link}')
+    logging.debug(f'Requesting data chunk {api_link}')
     r = requests.get(url=(api_link))
-    r.encoding = 'utf-8'
-    response = json.loads(r.text)
-    l.debug(response)
-    return response
+    return r.text
 
 
 def get_pages(api_name, offset=""):
     if api_name == API_ACL_NAME:
         l_offset = 0 if offset == "" else int(offset)
-        l.info(f'Get pages {API_ACL_NAME} offset {l_offset}')
+        logging.info(f'Get pages {API_ACL_NAME} offset {l_offset}')
         r = get_data_chunk(api_name, l_offset)
         total_count = int(r["total_count"]) - l_offset
         count = int(r["count"])
         pages = math.ceil(total_count / count)
-        l.info(f'Original total count {r["total_count"]}, altered total count {total_count}, count {count}, pages {pages}')
-        return map(lambda x: l_offset + count * --x, range(pages))
+        logging.info(f'Original total count {r["total_count"]}, altered total count {total_count}, count {count}, pages {pages}')
+    #elif api_name == 
+        #return map(lambda x: l_offset + count * --x, range(pages))
 
 
 def get_chunks(api_name, offset=""):
     return map(lambda x: get_data_chunk(api_name, x), get_pages(api_name, offset))
+
+#def push_acl():
+    #r = get_data_chunk(api_name, l_offset)

@@ -1,11 +1,9 @@
 import snowflake.connector
 import json
-import requests
-
+import logging
 
 def connect():
     # Opens a connection
-
     ctx = snowflake.connector.connect(
         user='dmitry.mitrofanov',
         password='o22Dm1trof@nova',
@@ -17,25 +15,18 @@ def connect():
     return ctx
 
 
-def mrg_to_table(ctx, table_name, data):
-    # Merge data to table
-
-    l_sql = "merge into {} t using (select parse_json('{}') v) s on s.v = parse_json(t.v) when not matched then insert (t.v) values (s.v)"
-    #l_sql = l_sql.format(table_name, json.dumps(data).replace("'", ""))
-    l_sql = l_sql.format(table_name, json.dumps(data))
-    cs = ctx.cursor()
-    try:
-        cs.execute(l_sql)
-    finally:
-        cs.close()
+def get_table_name(table_name, prefix="KAMALA_"):
+    return prefix + table_name
 
 
-def del_from_table(ctx, table_name):
-    # Delete data from table
+def mrg_to_table(cs, table_name, data):
+    l_sql = "merge into {} t using (select parse_json('{}') v, current_timestamp ts) s on s.v = parse_json(t.v) when not matched then insert (t.v, changed_at) values (s.v, s.ts)"
+    l_sql = l_sql.format(get_table_name(table_name), data.replace("'", r"\u0027"))
+    logging.debug(l_sql)
+    cs.execute(l_sql)
 
-    cs = ctx.cursor()
-    try:
-        cs.execute(
-            "delete from " + table_name)
-    finally:
-        cs.close()
+
+def del_from_table(cs, table_name):
+    l_sql = "delete from {}"
+    l_sql = l_sql.format(get_table_name(table_name))
+    cs.execute(l_sql)

@@ -27,12 +27,13 @@ app.config.update(
 )
 
 
-
 dropzone = Dropzone(app)
+
 
 @app.route('/kamala-first-seen-clients')
 def render_response():
     return get_api_data()
+
 
 @app.route('/kamala-services-per-day', methods=['POST', 'GET'])
 def upload():
@@ -44,15 +45,18 @@ def upload():
         )
     return render_template('index.html')
 
+
 @app.route('/kamala-services-per-day-file')
 def return_files():
     return send_file(
         os.path.join(app.config['UPLOADED_PATH'], 'result.csv'),
         mimetype='text/csv',
-        attachment_filename='result'+datetime.datetime.now().strftime("%Y%m%d%H%M%S")+'.csv',
+        attachment_filename='result' +
+        datetime.datetime.now().strftime("%Y%m%d%H%M%S") + '.csv',
         as_attachment=True,
         cache_timeout=0
     )
+
 
 if __name__ == '__main__':
     app.run(debug=True)

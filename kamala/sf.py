@@ -2,6 +2,7 @@ import snowflake.connector
 import json
 import logging
 
+
 def connect():
     # Opens a connection
     ctx = snowflake.connector.connect(

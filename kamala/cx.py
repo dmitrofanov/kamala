@@ -13,11 +13,13 @@ API_TOKEN = '073de5009f21b34afa022cfa7ca2c124'
 
 # ACL - Appointment Client Links
 API_ACL_NAME = 'ACL'
-API_ACL_LINK = CX_ENDPOINT + "list/a/{}/u/{}/t/{}/m/AppointmentClientLinks/ik/orders/rvwk/status,statuses/?date=10&offset="
+API_ACL_LINK = CX_ENDPOINT + \
+    "list/a/{}/u/{}/t/{}/m/AppointmentClientLinks/ik/orders/rvwk/status,statuses/?date=10&offset="
 
 # REACL = RoistatExportACL
 API_REACL_NAME = 'REACL'
-API_REACL_LINK = CX_ENDPOINT + "roistatExportAcl/a/{}/u/{}/t/{}/ik/orders/rvwk/status,statuses/?date=1521871200&offset="
+API_REACL_LINK = CX_ENDPOINT + \
+    "roistatExportAcl/a/{}/u/{}/t/{}/ik/orders/rvwk/status,statuses/?date=1521871200&offset="
 
 # CLDT - CLient by DaTe
 API_CLDT_NAME = 'CLDT'
@@ -41,13 +43,12 @@ API = {API_ACL_NAME: API_ACL_LINK,
        API_CLT_NAME: API_CLT_LINK}
 
 
-
 def get_api_link(api_name, page):
-    return API[api_name].format(API_ACCOUNT, API_USER, API_TOKEN) + str(page)
+  return API[api_name].format(API_ACCOUNT, API_USER, API_TOKEN) + str(page)
 
 
 def get_data_chunk(api_name, offset=""):
-    api_link = get_api_link(api_name, str(offset))
-    logging.info(f'Requesting data chunk {api_link}')
-    r = requests.get(url=(api_link))
-    return r.text
+  api_link = get_api_link(api_name, str(offset))
+  logging.info(f'Requesting data chunk {api_link}')
+  r = requests.get(url=(api_link))
+  return r.text

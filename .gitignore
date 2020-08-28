@@ -5,3 +5,4 @@ __pycache__/
 *.sublime-project
 *.sublime-workspace
 *.log
+*.log_bootstrap

@@ -2,76 +2,94 @@ from cx import *
 from sf import *
 import logging
 import uuid
+import os
+import glob
 
 logging.basicConfig(
-    force=True,
-    filename='test.log',
-    filemode='w',
+    # force=True,
+    # filename='test.log',
+    # filemode='w',
     format='%(asctime)s - %(message)s',
     # level=logging.INFO
-    level=logging.DEBUG
+    level=logging.INFO
 )
 
 this_run = uuid.uuid1()
 
 
-def push_data_acl():
+def save_chunk(data, name):
+    with open(os.path.join(base_path, 'chunks', f'{name}.json',), 'w') as f:
+        f.write(data)
+
+
+def cleanup_chunk_dir():
+    logging.info('Cleaning up the /chunks/ dir')
+    files = glob.glob(os.path.join(base_path, 'chunks\\*'))
+    for f in files:
+        logging.info(f'File {f} removed')
+        os.remove(f)
+
+
+def create_chunks_gitkeep():
+    logging.info('Creating .gitkeep file in /chunks/ dir')
+    f = open(os.path.join(base_path, 'chunks\\.gitkeep'), 'w')
+    f.close()
+
+
+def push_api_chunks(cs, api_name, continue_expr):
+    cleanup_chunk_dir()
+    # delete_from_table(cs, api_name)
+    drop_table(cs, api_name)
+    create_table(cs, api_name)
+    chunks = get_chunks(api_name, continue_expr)
+    for chunk, name in chunks:
+        logging.info(f'Saving chunk locally: {name}')
+        save_chunk(chunk, name)
+    load_to_table(cs, api_name, this_run)
+    cleanup_chunk_dir()
+
+
+def push_clt_data(cs):
+    def continue_expr(j):
+        result = j['count'] > 0
+        logging.info(
+            f"push_clt_data continue_expr -- count: {j['count']}, continue? {result}")
+        return result
+    push_api_chunks(cs, API_CLT_NAME, continue_expr)
+
+
+def push_acl_data(cs):
+    def continue_expr(j):
+        result = j['offset'] < j['total_count']
+        logging.info(
+            f"push_acl_data continue_expr -- offset: {j['offset']}, total_count: {j['total_count']}, continue? {result}")
+        return result
+    push_api_chunks(cs, API_ACL_NAME, continue_expr)
+
+
+def push_usr_data(cs):
+    def continue_expr(j):
+        result = j['count'] > 0
+        logging.info(
+            f"push_usr_data continue_expr -- count: {j['count']}, continue? {result}")
+        return result
+    push_api_chunks(cs, API_USR_NAME, continue_expr)
+
+
+def push_svc_data(cs):
+    def continue_expr(j):
+        result = j['offset'] == 40000
+        logging.info(
+            f"push_svc_data continue_expr -- offset: {j['offset']}, continue? {result}")
+        return result
+    push_api_chunks(cs, API_SVC_NAME, continue_expr)
+
+
+def push_all():
     ctx = connect()
     cs = ctx.cursor()
-    drop_table(cs, API_ACL_NAME)
-    create_table(cs, API_ACL_NAME)
-    logging.info(f'Table for {API_ACL_NAME} has been recreated')
 
-    offset = 0
-    chunk = get_data_chunk(API_ACL_NAME, offset)
-    parsed_chunk = json.loads(chunk)
-    total_count = int(parsed_chunk["total_count"])
-    while offset < total_count:
-        chunk = get_data_chunk(API_ACL_NAME, offset)
-        merge_to_table(cs, API_ACL_NAME, chunk, this_run)
-        offset = offset + 50
-
-
-def push_data_usr():
-    ctx = connect()
-    cs = ctx.cursor()
-    drop_table(cs, API_USR_NAME)
-    create_table(cs, API_USR_NAME)
-    logging.info(f'Table for {API_USR_NAME} has been recreated')
-
-    offset = 0
-    has_more_pages = True
-    while has_more_pages:
-        chunk = get_data_chunk(API_USR_NAME, offset)
-        parsed_chunk = json.loads(chunk)
-
-        has_more_pages = False if parsed_chunk['count'] < 50 else True
-
-        merge_to_table(cs, API_USR_NAME, json.dumps(parsed_chunk), this_run)
-        offset = offset + 50
-
-
-def push_data_clt():
-    ctx = connect()
-    cs = ctx.cursor()
-    drop_table(cs, API_CLT_NAME)
-    create_table(cs, API_CLT_NAME)
-    logging.info(f'Table for {API_CLT_NAME} has been recreated')
-
-    offset = 0
-    has_more_pages = True
-    while has_more_pages:
-        chunk = get_data_chunk(API_CLT_NAME, offset)
-        parsed_chunk = json.loads(chunk)
-
-        # parsed_chunk.pop('json_data', None)
-        for i in parsed_chunk["items"]:
-            i.pop('json_data', None)
-            i.pop('multi_image', None)
-            i.pop('multi_file', None)
-            pass
-        has_more_pages = False if parsed_chunk['count'] < 50 else True
-
-        merge_to_table(cs, API_CLT_NAME, chunk, this_run)
-        # merge_to_table(cs, API_CLT_NAME, chunk, this_run)
-        offset = offset + 50
+    push_acl_data(cs)
+    push_clt_data(cs)
+    push_usr_data(cs)
+    push_svc_data(cs)

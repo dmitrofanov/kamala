@@ -24,7 +24,7 @@ def save_chunk(data, name):
 
 def cleanup_chunk_dir():
     logging.info('Cleaning up the /chunks/ dir')
-    files = glob.glob(os.path.join(base_path, 'chunks\\*'))
+    files = glob.glob(os.path.join(base_path, 'chunks', '*'))
     for f in files:
         logging.info(f'File {f} removed')
         os.remove(f)
@@ -32,7 +32,7 @@ def cleanup_chunk_dir():
 
 def create_chunks_gitkeep():
     logging.info('Creating .gitkeep file in /chunks/ dir')
-    f = open(os.path.join(base_path, 'chunks\\.gitkeep'), 'w')
+    f = open(os.path.join(base_path, 'chunks', '.gitkeep'), 'w')
     f.close()
 
 
@@ -52,7 +52,7 @@ def push_api_chunks(cs, api_name, continue_expr):
 def push_clt_data(cs):
     def continue_expr(j):
         result = j['count'] > 0
-        logging.info(
+        logging.debug(
             f"push_clt_data continue_expr -- count: {j['count']}, continue? {result}")
         return result
     push_api_chunks(cs, API_CLT_NAME, continue_expr)
@@ -61,7 +61,7 @@ def push_clt_data(cs):
 def push_acl_data(cs):
     def continue_expr(j):
         result = j['offset'] < j['total_count']
-        logging.info(
+        logging.debug(
             f"push_acl_data continue_expr -- offset: {j['offset']}, total_count: {j['total_count']}, continue? {result}")
         return result
     push_api_chunks(cs, API_ACL_NAME, continue_expr)
@@ -70,7 +70,7 @@ def push_acl_data(cs):
 def push_usr_data(cs):
     def continue_expr(j):
         result = j['count'] > 0
-        logging.info(
+        logging.debug(
             f"push_usr_data continue_expr -- count: {j['count']}, continue? {result}")
         return result
     push_api_chunks(cs, API_USR_NAME, continue_expr)
@@ -79,7 +79,7 @@ def push_usr_data(cs):
 def push_svc_data(cs):
     def continue_expr(j):
         result = j['offset'] == 40000
-        logging.info(
+        logging.debug(
             f"push_svc_data continue_expr -- offset: {j['offset']}, continue? {result}")
         return result
     push_api_chunks(cs, API_SVC_NAME, continue_expr)
@@ -93,3 +93,6 @@ def push_all():
     push_clt_data(cs)
     push_usr_data(cs)
     push_svc_data(cs)
+
+
+push_all()

@@ -1,2 +1,7 @@
 env/
 .idea/
+*.sublime-project
+*.sublime-workspace
+__pycache__
+*.log
+*.log_bootstrap

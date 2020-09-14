@@ -17,14 +17,15 @@ from flask import render_template
 import datetime
 
 
-
 # Load the Pandas libraries with alias 'pd'
 import pandas as pd
 import re
 import csv
 
+
 def mutate_dict(x):
     return x.rstrip(',').strip()
+
 
 def fix_the_shit(file):
     data = pd.read_csv(file, sep=';', encoding='cp1251')
@@ -49,7 +50,6 @@ def fix_the_shit(file):
         writer.writerows(target)
 
 
-
 app = Flask(__name__)
 
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -58,32 +58,36 @@ app.config.update(
 )
 
 
-
 dropzone = Dropzone(app)
+
 
 @app.route('/kamala-first-seen-clients')
 def render_response():
     return render_template('kamala-first-seen-clients.html')
+
 
 @app.route('/kamala-services-per-day', methods=['POST', 'GET'])
 def upload():
     if request.method == 'POST':
         f = request.files.get('file')
         #full_path = os.path.join(app.config['UPLOADED_PATH'], f.filename)
-        #f.save(full_path)
+        # f.save(full_path)
         fix_the_shit(f)
-        #return send_from_directory(app.config['UPLOADED_PATH'], filename=f.filename, as_attachment=True, attachment_filename=f.filename+'fixed')
+        # return send_from_directory(app.config['UPLOADED_PATH'], filename=f.filename, as_attachment=True, attachment_filename=f.filename+'fixed')
     return render_template('index.html')
+
 
 @app.route('/kamala-services-per-day-file')
 def return_files():
     return send_file(
         os.path.join(app.config['UPLOADED_PATH'], 'result.csv'),
         mimetype='text/csv',
-        attachment_filename='result'+datetime.datetime.now().strftime("%Y%m%d%H%M%S")+'.csv',
+        attachment_filename='result' +
+        datetime.datetime.now().strftime("%Y%m%d%H%M%S") + '.csv',
         as_attachment=True,
         cache_timeout=0
     )
+
 
 if __name__ == '__main__':
     app.run(debug=True)

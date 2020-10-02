@@ -12,6 +12,7 @@ def connect():
         user='dmitry.mitrofanov',
         password='o22Dm1trof@nova',
         account='ringcentral',
+        authenticator='https://ringcentral.okta.com/',
         warehouse='RCUSERS_WH',
         database='RCUSERS',
         schema='DMITRYMITROFANOV',
@@ -24,7 +25,7 @@ def get_table_name(api_name, prefix="KAMALA_"):
 
 
 def create_table(cs, api_name):
-    l_sql = f"create table {get_table_name(api_name)} (v variant, inserted_at timestamp_ntz, etl_id VARCHAR(50))"
+    l_sql = f"create table {get_table_name(api_name)} (v variant, inserted_at timestamp_ntz, etl_id VARCHAR(50), filename VARCHAR(50))"
     cs.execute(l_sql)
 
 
@@ -70,8 +71,8 @@ def load_to_table(cs, api_name, etl_id):
     logging.info(command)
     cs.execute(command)
 
-    command = f'''copy into {table_name}(v, inserted_at, etl_id)
-from (select $1, current_timestamp(), '{etl_id}'
+    command = f'''copy into {table_name}(v, inserted_at, etl_id, filename)
+from (select $1, current_timestamp(), '{etl_id}', metadata$filename
       from @cx_api_stage/ t)
 on_error = 'ABORT_STATEMENT';'''
     logging.info(command)
